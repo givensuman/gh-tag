@@ -13,7 +13,7 @@ alias b := build
 alias r := run
 alias help := default
 
-project_name := "go-scule"
+project_name := "gh-tag"
 
 # Build configuration
 # Tags for conditional compilation
@@ -100,7 +100,7 @@ build:
     {{go}} build \
         -ldflags '{{ld_flags}}' \
         -o {{bin_dir}}/{{project_name}} \
-        ./main
+        .
 
 # Run the application
 run: build
@@ -108,7 +108,7 @@ run: build
 
 # Install the application
 install: build
-    {{go}} install -tags '{{all_tags}}' -ldflags '{{ld_flags}}' ./main
+    {{go}} install -tags '{{all_tags}}' -ldflags '{{ld_flags}}' .
 
 # Generate code
 generate:
@@ -161,7 +161,7 @@ build-all:
             -tags '{{all_tags}}' \
             -ldflags '{{ld_flags}}' \
             -o "$output" \
-            ./main
+            .
 
         tar czf "$output.tar.gz" "$output"
         rm -f "$output"

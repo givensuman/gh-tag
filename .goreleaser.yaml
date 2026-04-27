@@ -1,0 +1,46 @@
+version: 2
+project_name: gh-tag
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gh-tag
+    binary: gh-tag
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: gh-tag
+    formats:
+      - tar.gz
+      - binary
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+          - binary
+    name_template: "{{ .ProjectName }}_{{ .Os }}-{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+
+release:
+  prerelease: auto
+  github:
+    owner: givensuman
+    name: gh-tag
