@@ -4,7 +4,7 @@
 
 # gh-tag
 
-A GitHub CLI extension for managing tags remotely.
+A GitHub CLI extension for managing tags.
 
 ## Installation
 
