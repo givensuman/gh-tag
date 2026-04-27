@@ -9,7 +9,7 @@ A GitHub CLI extension for managing tags.
 ## Installation
 
 ```sh
-gh extension install givensum/gh-tag
+gh extension install givensuman/gh-tag
 ```
 
 ## Usage
