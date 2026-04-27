@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/tableprinter"
 	"github.com/cli/go-gh/v2/pkg/term"
@@ -15,7 +14,7 @@ import (
 func newListCmd() *cobra.Command {
 	var limit int
 	var search string
-	var jsonFields string
+	var json bool
 
 	cmd := &cobra.Command{
 		Use:   "list",
@@ -35,8 +34,8 @@ func newListCmd() *cobra.Command {
 				return err
 			}
 
-			if jsonFields != "" {
-				return printJSON(tags, repo, jsonFields)
+			if json {
+				return printJSON(tags, repo)
 			}
 
 			terminal := term.FromEnv()
@@ -46,7 +45,7 @@ func newListCmd() *cobra.Command {
 			for _, t := range tags {
 				printer.AddField(t.Name)
 				printer.AddField(t.Commit.SHA)
-				printer.AddField(fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", repo.Owner, repo.Repo, t.Name))
+				printer.AddField(formatURL(repo, t.Name))
 				printer.EndRow()
 			}
 
@@ -56,42 +55,20 @@ func newListCmd() *cobra.Command {
 
 	cmd.Flags().IntVarP(&limit, "limit", "L", 30, "Maximum number of tags to fetch")
 	cmd.Flags().StringVarP(&search, "search", "S", "", "Filter tags by name pattern")
-	cmd.Flags().StringVar(&jsonFields, "json", "", "Output in JSON format (fields: name,sha,url)")
+	cmd.Flags().BoolVarP(&json, "json", "J", false, "Output in JSON format")
 
 	return cmd
 }
 
-var validJSONFields = map[string]bool{"name": true, "sha": true, "url": true}
-
-func printJSON(tags []api.Tag, repo RepoContext, fields string) error {
-	requestedFields := strings.Split(fields, ",")
-
-	for _, f := range requestedFields {
-		f = strings.TrimSpace(f)
-		if f != "" && !validJSONFields[f] {
-			return fmt.Errorf("unknown field %q; valid fields: name, sha, url", f)
-		}
-	}
-
-	fieldSet := make(map[string]bool)
-	for _, f := range requestedFields {
-		fieldSet[strings.TrimSpace(f)] = true
-	}
-
+func printJSON(tags []api.Tag, repo RepoContext) error {
 	type outTag map[string]string
 	out := make([]outTag, 0, len(tags))
 
 	for _, t := range tags {
 		entry := make(outTag)
-		if fieldSet["name"] {
-			entry["name"] = t.Name
-		}
-		if fieldSet["sha"] {
-			entry["sha"] = t.Commit.SHA
-		}
-		if fieldSet["url"] {
-			entry["url"] = fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", repo.Owner, repo.Repo, t.Name)
-		}
+		entry["name"] = t.Name
+		entry["sha"] = t.Commit.SHA
+		entry["url"] = formatURL(repo, t.Name)
 
 		out = append(out, entry)
 	}
@@ -100,4 +77,8 @@ func printJSON(tags []api.Tag, repo RepoContext, fields string) error {
 	enc.SetIndent("", "  ")
 
 	return enc.Encode(out)
+}
+
+func formatURL(repo RepoContext, tagName string) string {
+	return fmt.Sprintf("https://github.com/%s/%s/releases/tag/%s", repo.Owner, repo.Repo, tagName)
 }
