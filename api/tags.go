@@ -18,8 +18,8 @@ type Tag struct {
 		SHA string `json:"sha"`
 		URL string `json:"url"`
 	} `json:"commit"`
-	ZipballURL string `json:"zipball_url"`
-	TarballURL string `json:"tarball_url"`
+	ZipballURL string `json:"zipball_url"` // Not currently being used
+	TarballURL string `json:"tarball_url"` // Not currently being used
 }
 
 // TagObject is the object returned by
@@ -157,7 +157,8 @@ func CreateAnnotatedTag(owner, repo, name, sha, message string) error {
 		SHA string `json:"sha"`
 	}
 
-	if err := client.Post(fmt.Sprintf("repos/%s/%s/git/tags", owner, repo), tagBody, &tagObj); err != nil {
+	err = client.Post(fmt.Sprintf("repos/%s/%s/git/tags", owner, repo), tagBody, &tagObj)
+	if err != nil {
 		return err
 	}
 
