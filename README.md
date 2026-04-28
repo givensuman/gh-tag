@@ -20,7 +20,7 @@ gh extension install givensuman/gh-tag
 gh tag list
 gh tag list --limit 50
 gh tag list --search v1.
-gh tag list --json name,sha,url
+gh tag list --json
 ```
 
 ### Create a tag
